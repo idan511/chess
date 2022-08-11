@@ -14,24 +14,17 @@
 #define NUM_OF_PIECES 7
 //#define USE_UNICODE
 
-typedef enum BoardColor {B_BLACK=250, B_WHITE=15} BoardColor;
+typedef enum BoardColor {
+    B_BLACK = 250, B_WHITE = 15
+} BoardColor;
 
 typedef Piece TeamArray[16];
 
 typedef struct SaveGame {
     TeamPieces teams[2];
-    Team turn : 1;
-    GameState state : 2;
+    Team turn: 1;
+    GameState state: 2;
 } SaveGame;
-
-//const Game new_game_template = {{{ROOK, BLACK,0,KNIGHT, BLACK,0,BISHOP, BLACK, 0,QUEEN, BLACK,0,KING, BLACK,0,BISHOP, BLACK,0,KNIGHT, BLACK,0,ROOK, BLACK, 0},
-//              {PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK,0,PAWN, BLACK, 0},
-//              {},{},{},{},
-//              {PAWN, WHITE, 0, PAWN, WHITE,0,PAWN, WHITE,0,PAWN, WHITE,0,PAWN, WHITE,0,PAWN, WHITE,0,PAWN, WHITE,0,PAWN, WHITE, 0},
-//              {ROOK, WHITE,0,KNIGHT, WHITE,0,BISHOP, WHITE, 0,QUEEN, WHITE,0,KING, WHITE,0,BISHOP, WHITE,0,KNIGHT, WHITE,0,ROOK, WHITE, 0},
-//             },
-//             WHITE,
-//             CONTINUE};
 
 const SaveGame new_game_template = {{{KING, WHITE, false, false, true, 4, 7, 0,
                                       QUEEN, WHITE, false, false, true, 3, 7, 0,
@@ -66,16 +59,16 @@ const SaveGame new_game_template = {{{KING, WHITE, false, false, true, 4, 7, 0,
                                       PAWN, BLACK, false, false, true, 6, 1, 0,
                                       PAWN, BLACK, false, false, true, 7, 1, 0}}};
 
-const char * white_name = "white";
-const char * black_name = "black";
+const char *white_name = "white";
+const char *black_name = "black";
 
 #ifdef USE_UNICODE
 const char * piece_str[] = {NULL, "♔", "♕", "♖", "♗", "♘", "♙", NULL, "♚", "♛", "♜", "♝", "♞", "♟"};
 #else
-const char * piece_str[] = {NULL, "K", "Q", "R", "B", "N", "p", NULL, "K", "Q", "R", "B", "N", "p"};
+const char *piece_str[] = {NULL, "K", "Q", "R", "B", "N", "p", NULL, "K", "Q", "R", "B", "N", "p"};
 #endif
 
-const char * piece_to_str(Piece *piece) {
+const char *piece_to_str(Piece *piece) {
     return piece_str[piece->type + NUM_OF_PIECES * piece->team];
 }
 
@@ -87,7 +80,7 @@ int team_to_color(Team t) {
 #endif
 }
 
-char * coords_to_str(int i, int j, char *out) {
+char *coords_to_str(int i, int j, char *out) {
     out[1] = '8' - i;
     out[0] = 'a' + j;
     out[2] = '\0';
@@ -116,7 +109,7 @@ void str_to_board(uint8_t *col, uint8_t *row) {
     *col -= 'a';
 }
 
-int get_move(char* buf, uint8_t *fr, uint8_t *fc, uint8_t *tr, uint8_t *tc) {
+int get_move(char *buf, uint8_t *fr, uint8_t *fc, uint8_t *tr, uint8_t *tc) {
     if (sscanf(buf, "%c%c:%c%c", fc, fr, tc, tr) != 4) {
         puts("bad format");
         return 0;
@@ -132,9 +125,9 @@ int get_move(char* buf, uint8_t *fr, uint8_t *fc, uint8_t *tr, uint8_t *tc) {
     return 1;
 }
 
-bool is_threat(Game* game, Piece *from, Piece *to);
+bool is_threat(Game *game, Piece *from, Piece *to);
 
-void do_move(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+void do_move(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     if (game->board[tr][tc])
         game->board[tr][tc]->alive = false;
     game->board[tr][tc] = game->board[fr][fc];
@@ -149,7 +142,7 @@ void do_move(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     }
 }
 
-bool is_move_valid_rook(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_rook(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
     int step_c, step_r, steps;
 
@@ -177,7 +170,7 @@ bool is_move_valid_rook(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
     return true;
 }
 
-bool is_move_valid_bishop(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_bishop(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
     int step_r, step_c;
 
@@ -195,19 +188,19 @@ bool is_move_valid_bishop(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_
     return true;
 }
 
-bool is_move_valid_knight(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_knight(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
     return (abs(dc) == 1 && abs(dr) == 2) || (abs(dc) == 2 && abs(dr) == 1);
 }
 
-bool is_move_valid_king_helper(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_king_helper(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
 
     return abs(dc) <= 1 && abs(dr) <= 1;
 }
 
 
-bool is_move_valid_king(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_king(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
 
     // castling
@@ -226,11 +219,11 @@ bool is_move_valid_king(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
     return is_move_valid_king_helper(game, fr, fc, tr, tc);
 }
 
-bool is_move_valid_queen(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_queen(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     return is_move_valid_bishop(game, fr, fc, tr, tc) || is_move_valid_rook(game, fr, fc, tr, tc);
 }
 
-bool is_move_valid_pawn_helper(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_pawn_helper(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     int dr = fr - tr, dc = fc - tc;
     int dir = game->board[fr][fc]->team == BLACK ? -1 : 1;
     //printf("%d %d %d %u %d %d\n", dr, dc, dir, game->board[fr][fc].moves, game->board[fr + dir][fc].type == NONE, game->board[tr][tc].type == NONE);
@@ -250,13 +243,14 @@ bool is_move_valid_pawn_helper(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, u
     return false;
 }
 
-bool is_move_valid_pawn(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_move_valid_pawn(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     if (!is_move_valid_pawn_helper(game, fr, fc, tr, tc)) {
         return false;
     }
     //printf("--> %u, %d\n", tr, game->board[fr][fc]->team);
     if (tr == game->board[fr][fc]->team * 7) {
-        printf("%s = 0, %s = 1, %s = 2, %s = 3\nPromotion! please choose piece: ", piece_str[2], piece_str[3], piece_str[4], piece_str[5]);
+        printf("%s = 0, %s = 1, %s = 2, %s = 3\nPromotion! please choose piece: ", piece_str[2], piece_str[3],
+               piece_str[4], piece_str[5]);
         char buf[BUF_SIZE];
         while (true) {
             if (!fgets(buf, BUF_SIZE - 1, stdin)) {
@@ -279,7 +273,7 @@ bool is_move_valid_pawn(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
     return true;
 }
 
-bool is_threat(Game* game, Piece *from, Piece *to) {
+bool is_threat(Game *game, Piece *from, Piece *to) {
     uint8_t fr = from->row, fc = from->col, tr = to->row, tc = to->col;
     switch (game->board[fr][fc]->type) {
         case PAWN:
@@ -299,7 +293,7 @@ bool is_threat(Game* game, Piece *from, Piece *to) {
     }
 }
 
-bool is_valid_move_helper(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_valid_move_helper(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     switch (game->board[fr][fc]->type) {
         case PAWN:
             return is_move_valid_pawn(game, fr, fc, tr, tc);
@@ -318,7 +312,7 @@ bool is_valid_move_helper(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_
     }
 }
 
-bool is_valid_move(Game* game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+bool is_valid_move(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
     Piece *fp = game->board[fr][fc];
     Piece *tp = game->board[tr][tc];
     if (!fp) {
@@ -346,7 +340,7 @@ void clear_en_passant(Game *game) {
     }
 }
 
-void loop(Game* game, char * move) {
+void loop(Game *game, char *move) {
     uint8_t fr, fc, tr, tc;
     clear_en_passant(game);
 
@@ -383,27 +377,27 @@ void decode_game(Game *to, const SaveGame *from) {
     }
 }
 
-void save_game(Game * game, char * filename) {
+void save_game(Game *game, char *filename) {
     if (!game || !filename) return;
-    FILE* save_file;
+    FILE *save_file;
     SaveGame s_game;
     encode_game(&s_game, game);
-    if (!(save_file = fopen(filename, "wb"))){
+    if (!(save_file = fopen(filename, "wb"))) {
         return;
     }
-    fwrite( &s_game, sizeof(SaveGame),1,save_file);
+    fwrite(&s_game, sizeof(SaveGame), 1, save_file);
     fclose(save_file);
     printf("%s saved!\n", filename);
 }
 
-void load_game(Game * game, char * filename) {
+void load_game(Game *game, char *filename) {
     if (!game || !filename) return;
-    FILE* save_file;
+    FILE *save_file;
     SaveGame s_game;
-    if (!(save_file = fopen(filename, "rb"))){
+    if (!(save_file = fopen(filename, "rb"))) {
         return;
     }
-    fread(&s_game , sizeof(SaveGame), 1, save_file);
+    fread(&s_game, sizeof(SaveGame), 1, save_file);
     fclose(save_file);
     decode_game(game, &s_game);
     printf("%s loaded!\n", filename);

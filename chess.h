@@ -8,7 +8,8 @@
 #include <stdbool.h>
 #define BOARD_SIZE 8
 
-typedef enum PieceType {KING=1, QUEEN, ROOK, BISHOP, KNIGHT, PAWN} PieceType;
+typedef enum PieceType {
+    KING=1, QUEEN, ROOK, BISHOP, KNIGHT, PAWN} PieceType;
 typedef enum Team{WHITE=0, BLACK=1} Team;
 typedef enum GameState{CONTINUE, END, ERROR} GameState;
 
