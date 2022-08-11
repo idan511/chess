@@ -12,6 +12,7 @@
 #define BUF_SIZE 50
 #define COMMAND_SIZE 5
 #define NUM_OF_PIECES 7
+//#define USE_UNICODE
 
 typedef enum BoardColor {B_BLACK=250, B_WHITE=15} BoardColor;
 
@@ -68,14 +69,22 @@ const SaveGame new_game_template = {{{KING, WHITE, false, false, true, 4, 7, 0,
 const char * white_name = "white";
 const char * black_name = "black";
 
+#ifdef USE_UNICODE
+const char * piece_str[] = {NULL, "♔", "♕", "♖", "♗", "♘", "♙", NULL, "♚", "♛", "♜", "♝", "♞", "♟"};
+#else
 const char * piece_str[] = {NULL, "K", "Q", "R", "B", "N", "p", NULL, "K", "Q", "R", "B", "N", "p"};
+#endif
 
 const char * piece_to_str(Piece *piece) {
     return piece_str[piece->type + NUM_OF_PIECES * piece->team];
 }
 
 int team_to_color(Team t) {
+#ifdef USE_UNICODE
+    return 16;
+#else
     return t == WHITE ? 26 : 196;
+#endif
 }
 
 char * coords_to_str(int i, int j, char *out) {
@@ -403,8 +412,8 @@ void load_game(Game * game, char * filename) {
 void play_game(Game *game) {
     if (!game) return;
     draw_board(game->board);
-    printf("%lu\n", sizeof(SaveGame));
-    while (game->state != END) {
+
+    while (game->state == CONTINUE) {
 
         char buf[BUF_SIZE + 1] = {0};
         printf("%s's turn: ", game->turn == WHITE ? white_name : black_name);

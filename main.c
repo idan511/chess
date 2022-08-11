@@ -3,12 +3,7 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-
     Game game;
-
-    printf("%lu\n", sizeof(Piece));
-    printf("%lu\n", sizeof(Game));
-
 
     switch (argc) {
         case 1:
