@@ -13,12 +13,13 @@
 #define COMMAND_SIZE 5
 #define NUM_OF_PIECES 7
 //#define USE_UNICODE
+//#define GOD_MODE
 
 typedef enum BoardColor {
     B_BLACK = 250, B_WHITE = 15
 } BoardColor;
 
-typedef Piece TeamArray[16];
+//typedef Piece TeamArray[16];
 
 typedef struct SaveGame {
     TeamPieces teams[2];
@@ -74,18 +75,21 @@ const char *piece_to_str(Piece *piece) {
 
 int team_to_color(Team t) {
 #ifdef USE_UNICODE
+    (void) t;
     return 16;
 #else
     return t == WHITE ? 26 : 196;
 #endif
 }
 
+#ifdef DEBUG
 char *coords_to_str(int i, int j, char *out) {
     out[1] = '8' - i;
     out[0] = 'a' + j;
     out[2] = '\0';
     return out;
 }
+#endif
 
 void draw_board(Board board) {
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -143,6 +147,9 @@ void do_move(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
 }
 
 bool is_move_valid_rook(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
     int dr = fr - tr, dc = fc - tc;
     int step_c, step_r, steps;
 
@@ -157,20 +164,20 @@ bool is_move_valid_rook(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
     } else {
         return false;
     }
-    //printf("%d %d %d ", step_r, step_c, steps);
+
     for (int i = 1; i < steps; i++) {
-//        char tmp[3];
-//        printf("%s ", coords_to_str(fr + i * step_r, fc + i * step_c, tmp));
         if (game->board[fr + i * step_r][fc + i * step_c]) {
             return false;
         }
     }
-//    printf("\n");
 
     return true;
 }
 
 bool is_move_valid_bishop(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
     int dr = fr - tr, dc = fc - tc;
     int step_r, step_c;
 
@@ -189,18 +196,28 @@ bool is_move_valid_bishop(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_
 }
 
 bool is_move_valid_knight(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
+    (void) game;
     int dr = fr - tr, dc = fc - tc;
     return (abs(dc) == 1 && abs(dr) == 2) || (abs(dc) == 2 && abs(dr) == 1);
 }
 
 bool is_move_valid_king_helper(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
+    (void) game;
     int dr = fr - tr, dc = fc - tc;
-
     return abs(dc) <= 1 && abs(dr) <= 1;
 }
 
 
 bool is_move_valid_king(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
     int dr = fr - tr, dc = fc - tc;
 
     // castling
@@ -220,10 +237,16 @@ bool is_move_valid_king(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
 }
 
 bool is_move_valid_queen(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
     return is_move_valid_bishop(game, fr, fc, tr, tc) || is_move_valid_rook(game, fr, fc, tr, tc);
 }
 
 bool is_move_valid_pawn_helper(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t tc) {
+#ifdef GOD_MODE
+    return true;
+#endif
     int dr = fr - tr, dc = fc - tc;
     int dir = game->board[fr][fc]->team == BLACK ? -1 : 1;
     //printf("%d %d %d %u %d %d\n", dr, dc, dir, game->board[fr][fc].moves, game->board[fr + dir][fc].type == NONE, game->board[tr][tc].type == NONE);
@@ -248,9 +271,10 @@ bool is_move_valid_pawn(Game *game, uint8_t fr, uint8_t fc, uint8_t tr, uint8_t 
         return false;
     }
     //printf("--> %u, %d\n", tr, game->board[fr][fc]->team);
-    if (tr == game->board[fr][fc]->team * 7) {
-        printf("%s = 0, %s = 1, %s = 2, %s = 3\nPromotion! please choose piece: ", piece_str[2], piece_str[3],
-               piece_str[4], piece_str[5]);
+    int team_shift = game->board[fr][fc]->team * 7;
+    if (tr == team_shift) {
+        printf("%s = 0, %s = 1, %s = 2, %s = 3\nPromotion! please choose piece: ", piece_str[2 + team_shift], piece_str[3 + team_shift],
+               piece_str[4 + team_shift], piece_str[5 + team_shift]);
         char buf[BUF_SIZE];
         while (true) {
             if (!fgets(buf, BUF_SIZE - 1, stdin)) {
